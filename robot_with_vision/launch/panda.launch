@@ -1,0 +1,47 @@
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find franka_description)/robots/panda_arm_hand.urdf.xacro" />
+
+  <!-- GAZEBO arguments -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="load_gripper" default="true"/>
+
+  <!--launch GAZEBO with own world configuration -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+  	<arg name="debug" value="$(arg debug)"/>
+  	<arg name="gui" value="$(arg gui)"/>
+  	<arg name="paused" value="$(arg paused)"/>
+  	<arg name="use_sim_time" value="$(arg use_sim_time)"/>
+  	<arg name="headless" value="$(arg headless)"/>
+  </include>
+
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model panda"/>
+
+  <rosparam file="$(find robot_with_vision)/config/panda_control.yaml" command="load"/>
+
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="joint_state_controller panda_arm_controller" />
+  <node if="$(arg load_gripper)" name="controller_spawner_hand" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="panda_hand_controller" />
+
+
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <!--<rosparam file="$(find robotics_assisted_tomography)/config/panda_control.yaml" command="load"/>-->
+
+  <!-- load the controllers -->
+
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+
+
+  <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
+
+  <!--<node pkg="Panda_Test" type="robot_control_node2.py" name="robot_control_node" />-->
+
+<!--<node name="move_group_python_interface_tutorial" pkg="Panda_Test" type="move_group_python_interface_tutorial.py" respawn="false" output="screen">
+</node>-->
+
+<!--<node name="setup_box" pkg="Panda_Test" type="setup_box.py" respawn="false" output="screen"/>-->
+
+</launch>
