@@ -22,6 +22,7 @@ class Factory : public WorldPlugin
     double block_width = 0.1;
 
     int num_blocks = 3;
+    const char *color_array[3] = {"1 0 0 1", "0 1 0 1", "0 0 1 1"};
     double block_positions[2][num_blocks]; 
 
     for (int i = 0; i <  num_blocks; i++){
@@ -87,6 +88,12 @@ class Factory : public WorldPlugin
                     <geometry>\
                       <box><size>0.1 0.1 0.1</size></box>\
                     </geometry>\
+                    <material>\
+                      <ambient> " + color_array[i] + " </ambient>\
+                      <diffuse> 0 0 0 1 </diffuse>\
+                      <specular> 0 0 0 0 </specular>\
+                      <emissive> 0 0 0 1 </emissive>\
+                    </material>\
                   </visual>\
                 </link>\
               </model>\
