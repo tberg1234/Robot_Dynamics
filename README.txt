@@ -1,10 +1,11 @@
 # Robot_Dynamics
 # Adam's branch
 
-#Dependencies/requirements:
+#Dependencies/requirements/preferred environment:
+>Ubuntu 18.04
 >ROS Melodic
 
 >joint state publisher:
-sudo apt install ros-<your_ros_version>-joint-state-publisher-gui
+sudo apt install ros-melodic-joint-state-publisher-gui
 
 >
