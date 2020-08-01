@@ -204,3 +204,12 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+find_package(gazebo REQUIRED)
+include_directories(${GAZEBO_INCLUDE_DIRS})
+link_directories(${GAZEBO_LIBRARY_DIRS})
+list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
+
+add_library(blocks SHARED blocks.cc)
+target_link_libraries(blocks ${GAZEBO_LIBRARIES})
+
