@@ -48,6 +48,9 @@
 
   <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
 
+  <node pkg="robot_with_vision" type="img_converter.py" name="img_converter" />
+  <node pkg="robot_with_vision" type="camera_vision.py" name="get_box_coordinates" />
+
   <!--<node pkg="Panda_Test" type="robot_control_node2.py" name="robot_control_node" />-->
 
 <!--<node name="move_group_python_interface_tutorial" pkg="Panda_Test" type="move_group_python_interface_tutorial.py" respawn="false" output="screen">
