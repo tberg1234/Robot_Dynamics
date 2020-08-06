@@ -14,12 +14,77 @@
 load('Panda Config');
 
 %% Perform Desired Calculations
-tauNum = calcTau(tau, [0;0;0;0;0;0;0],[0;0;0;0;0;0;0],[0;0;0;0;0;0;0])
+startpos = [20;20;0];
+liftpos = [20;20;20];
+endpos = [100;100;100];
+tstart = 0;
+tend = 5;
+tlift = tend/2;
 
-FKNum = calcFK(T, [0;0;0;0;0;0;0;0])
+syms t
+% Create Task Space Trajectories
+x(t) = piecewiseCubicTraj(tstart, tlift, tend, startpos(1), liftpos(1), endpos(1));
+y(t) = piecewiseCubicTraj(tstart, tlift, tend, startpos(2), liftpos(2), endpos(2));
+z(t) = piecewiseCubicTraj(tstart, tlift, tend, startpos(3), liftpos(3), endpos(3));
+
+% Choose 5 locations along the trajectory
+k = 5;
+chosentimes = linspace(0,tend,k);
+
+taskspaceconfig = cell(k, 1);
+for i = 1:k
+    t = chosentimes(i);
+    x_value = double(subs(x));
+    y_value = double(subs(y));
+    z_value = double(subs(z));
+    taskspaceconfig{i} = [x_value; y_value; z_value];
+    
+end
+
+
+% Find corresponding joint space configurations
+jointspaceconfig = cell(k, 1);
+for i = 1:k
+    disp("Finding jointspaceconfig" + i);
+    % jointspaceconfig{i} = num_IK(J, T, [0;0;0;0;0;0;0], taskspaceconfig{i});
+    % TEMPORARY UNTIL NUM IK IS FIXED
+    jointspaceconfig{i} = [0;0;0;0;0;0;0];
+end
+
+% Calculate Efforts
+tauconfig = cell(k,1);
+for i = 1:k
+    tauconfig{i} = calcTau(tau, jointspaceconfig{i}, [0;0;0;0;0;0;0],[0;0;0;0;0;0;0]);
+end
+
+%tauNum = calcTau(tau, [0;0;0;0;0;0;0],[0;0;0;0;0;0;0],[0;0;0;0;0;0;0])
+
+%FKNum = calcFK(T, [0;0;0;0;0;0;0;0])
 
 %q_found = num_IK(J, T, [0 0 0 0 0.5 0 0].', [11/125 -17/250 223/1000].')
 
+%% Trajectory Functions
+
+function p =  piecewiseCubicTraj(tstart, tlift, tend, startpos, liftpos, endpos)
+syms t
+p(t) = piecewise(t<=tlift, cubicTraj(tstart, tlift, startpos, liftpos), t<=tend, cubicTraj(tlift, tend, liftpos, endpos));
+
+end
+
+function t = cubicTraj(tstart, tend, startpos, endpos)
+syms t
+m = [1 tstart tstart^2 tstart^3;
+    1 tend tend^2 tend^3;
+    0 1 2*tstart 3*tstart^2;
+    0 1 2*tend 3*tend^2];
+
+syms a0 a1 a2 a3
+S = solve(m*[a0; a1; a2; a3] == [startpos; endpos; 0;0]);
+a = double([S.a0; S.a1; S.a2; S.a3]);
+
+t(t) = a(1) + a(2)*t + a(3)*t^2 + a(4)*t^3;
+
+end
 %% Numeric Model Functions
 function tauNum = calcTau(tau, angle, velocity, acceleration)
 %{ 
@@ -75,21 +140,20 @@ function q_found = num_IK(J_sym, T, qi, pdes)
 %}
 threshold = 0.01;
 
-Ti = calcFK(T, qi);
-pe = Ti(1:3,4);
+pe = calcFK(T, qi);
 
-error = abs(pdes-pe)
+error = pdes-pe
 
-while (error(1) > threshold) || (error(2) > threshold) || (error(3) >  threshold)
+while (abs(double(error(1))) > threshold) || (abs(double(error(2))) > threshold) || (abs(double(error(3))) >  threshold)
     Ji = calcJ(J_sym, qi);
     Jv = Ji(1:3,:);
     delta_q = pinv(Jv)*error;
     qi = qi + delta_q;
     
-    Ti = calcFK(T, qi);
-    pe = Ti(1:3,4);
+    pe = calcFK(T, qi);
 
-    error = abs(pdes-pe)
+    error = pdes-pe
+    disp(qi)
 end
 
 q_found = qi;
