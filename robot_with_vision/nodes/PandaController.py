@@ -54,24 +54,25 @@ class PandaController:
         rospy.spin()
         rospy.loginfo("PandaController server node ready.")
 
-    def joints_update(self, joints_pos, joints_vel, joints_eff):
-        # compose JointState message with position, velocity and effort/force for each joint
-        # joints are denoted by name as defined in the xacro
-        name = ['panda_joint1', 'panda_joint2', 'panda_joint3', 'panda_joint4',
-                'panda_joint5', 'panda_joint6', 'panda_joint7']
-        position = []
-        velocity = []
-        effort = []
-        for i in range(len(joints_pos)):
-            position.append(joints_pos[i])
-            velocity.append(joints_vel[i])
-            effort.append(joints_eff[i])
-        j_msg = JointState().name = name
-        j_msg.position = position
-        j_msg.velocity = velocity
-        j_msg.effort = effort
-        self.joint_state_pub.publish(j_msg)
-        return
+    ### moved to matlab files ###
+    # def joints_update(self, joints_pos, joints_vel, joints_eff):
+    #     # compose JointState message with position, velocity and effort/force for each joint
+    #     # joints are denoted by name as defined in the xacro
+    #     name = ['panda_joint1', 'panda_joint2', 'panda_joint3', 'panda_joint4',
+    #             'panda_joint5', 'panda_joint6', 'panda_joint7']
+    #     position = []
+    #     velocity = []
+    #     effort = []
+    #     for i in range(len(joints_pos)):
+    #         position.append(joints_pos[i])
+    #         velocity.append(joints_vel[i])
+    #         effort.append(joints_eff[i])
+    #     j_msg = JointState().name = name
+    #     j_msg.position = position
+    #     j_msg.velocity = velocity
+    #     j_msg.effort = effort
+    #     self.joint_state_pub.publish(j_msg)
+    #     return
 
     def go_to(self, trajectory):
         # takes a trajectory, which is an array of JointState values (pos, vel, effort)
