@@ -12,6 +12,8 @@ from nav_msgs.msg import Path
 from sensor_msgs.msg import JointState
 # from geometry_msgs.msg import PoseStamped
 from nav_msgs.srv import GetPlan
+from robot_with_vision.msg import centers, points_to_go_to
+
 #
 # from ros_utilities import *
 
@@ -40,15 +42,10 @@ class PandaController:
     def __init__(self):
         self.joint_update_delay = 10  # sleep time in ms between sending new joint position
 
-        self.current_joints = [0, 0, 0, 0, 0, 0, 0]
-
         rospy.init_node("panda_control")
         self.joint_state_pub = rospy.Publisher("/joint_states", JointState)
         self.waypoint_pub = rospy.Publisher("/panda_waypoints", GetPlan)
-        rospy.Subscriber('/block_locations', GetPlan, self.request_trajectory)
-
-        # TODO: start vision node
-        # TODO: start trajectory node
+        rospy.Subscriber('/block_points', points_to_go_to, self.request_trajectory)
 
         rospy.sleep(10)
         rospy.spin()
@@ -74,23 +71,23 @@ class PandaController:
     #     self.joint_state_pub.publish(j_msg)
     #     return
 
-    def go_to(self, trajectory):
-        # takes a trajectory, which is an array of JointState values (pos, vel, effort)
-        # iterate through each trajectory point and set each joint variable
-        for i in range(len(trajectory)):
-            self.joints_update(trajectory[0][i], trajectory[1][i], trajectory[2][i])
-            rospy.sleep(self.joint_update_delay)
+    # def go_to(self, trajectory):
+    #     # takes a trajectory, which is an array of JointState values (pos, vel, effort)
+    #     # iterate through each trajectory point and set each joint variable
+    #     for i in range(len(trajectory)):
+    #         self.joints_update(trajectory[0][i], trajectory[1][i], trajectory[2][i])
+    #         rospy.sleep(self.joint_update_delay)
 
     @staticmethod
     def request_trajectory(msg):
         # send message to trajectory node with start, midpoint and end location in XYZ
         # prepare '/block_locations' message for trajectory: add midpoint and goal location based on color of block
         waypoints = []
-        for i in range(len(msg.poses)):
+        for i in range(len(msg.x_points)):
             # block location
-            xi = msg.poses[2*i].position.x
-            yi = msg.poses[2*i].position.y
-            zi = msg.poses[2*i].position.z
+            xi = msg.x_points[i]
+            yi = msg.y_points[i]
+            zi = msg.z_points[i]
             waypoints.append([xi, yi, zi])
             # midpoint; just lifts 100 z units TODO: tweak this
             zm = zi + 100
@@ -98,10 +95,10 @@ class PandaController:
             # destination location TODO: see above, how to differentiate block types?
             # currently assumes it's done by the vision node and that node sends:
             # ['block1 location','destination','block2 location',... etc]
-            xf = msg.poses[2*i+1].position.x
-            yf = msg.poses[2*i+1].position.y
-            zf = msg.poses[2*i+1].position.z
-            waypoints.append([xf, yf, zf])
+            # xf = msg.poses[2*i+1].position.x
+            # yf = msg.poses[2*i+1].position.y
+            # zf = msg.poses[2*i+1].position.z
+            # waypoints.append([xf, yf, zf])
 
         # prepare Path message
         path_msg = Path()
