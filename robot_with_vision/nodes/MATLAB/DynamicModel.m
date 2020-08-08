@@ -8,15 +8,48 @@
 % Uncomment when it is necessary to recalculate the symbolic forward
 % kinematics, inverse kinematics or dyanmical model
 
-% configureMatlab(); quit;
+%configureMatlab(); quit;
 
 % When no symbolic recalculation is necessary:
-load('Panda Config');
+%load('Panda Config');
+%folderpath = ('~/catkin_ws/src/Robot_Dynamics/');
+%rosgenmsg(folderpath);
+%addpath('/home/parallels/catkin_ws/src/Robot_Dynamics/matlab_gen/msggen')
+
+rosinit('http://parallels-Parallels-Virtual-Platform:11311/');
+
+block_points = rossubscriber('/block_points', @blocksFound);
 
 %% Perform Desired Calculations
-startpos = [20;20;0];
-liftpos = [20;20;20];
-endpos = [100;100;100];
+
+%% ROS Functions
+function blocksFound(src, msg)
+x_points = msg.XPoints;
+y_points = msg.YPoints;
+z_points = msg.ZPoints;
+points = cell(1, length(x_points));
+for i = 1:length(x_points)
+points{i} = [str2double(x_points{i}) str2double(y_points{i}) str2double(z_points{i})];
+end
+
+[jointspaceconfig, tauconfig] = plan_trajectory(points{1}, [0.5, 0.5, 0]);
+
+vel = cell(1,7);
+vel{1} = 0; vel{2} = 0; vel{3} = 0; vel{4} = 0; vel{5} = 0; vel{6} = 0; vel{7} = 0;
+for i = 1:length(jointspaceconfig)
+    disp("publishing");
+    publish_joint(jointspaceconfig{1}, [0;0;0;0;0;0;0], tauconfig{1});
+    pause(5);
+end
+end
+
+
+%% Trajectory Functions
+function [jointspaceconfig, tauconfig] = plan_trajectory(startpos, endpos)
+load('Panda Config');
+
+
+liftpos = [startpos(1);startpos(2);startpos(3)+0.3];
 tstart = 0;
 tend = 5;
 tlift = tend/2;
@@ -46,9 +79,9 @@ end
 jointspaceconfig = cell(k, 1);
 for i = 1:k
     disp("Finding jointspaceconfig" + i);
-    % jointspaceconfig{i} = num_IK(J, T, [0;0;0;0;0;0;0], taskspaceconfig{i});
-    % TEMPORARY UNTIL NUM IK IS FIXED
-    jointspaceconfig{i} = [0;0;0;0;0;0;0];
+    %jointspaceconfig{i} = num_IK(J, T, [0;0;0;0;0;0;0], taskspaceconfig{i});
+    %% FIX INVERSE KINEMATICS
+    jointspaceconfig{i} = [0; 0; 0; 0; 0; 0; 0];
 end
 
 % Calculate Efforts
@@ -57,13 +90,7 @@ for i = 1:k
     tauconfig{i} = calcTau(tau, jointspaceconfig{i}, [0;0;0;0;0;0;0],[0;0;0;0;0;0;0]);
 end
 
-%tauNum = calcTau(tau, [0;0;0;0;0;0;0],[0;0;0;0;0;0;0],[0;0;0;0;0;0;0])
-
-%FKNum = calcFK(T, [0;0;0;0;0;0;0;0])
-
-%q_found = num_IK(J, T, [0 0 0 0 0.5 0 0].', [11/125 -17/250 223/1000].')
-
-%% Trajectory Functions
+end
 
 function p =  piecewiseCubicTraj(tstart, tlift, tend, startpos, liftpos, endpos)
 syms t
@@ -85,6 +112,7 @@ a = double([S.a0; S.a1; S.a2; S.a3]);
 t(t) = a(1) + a(2)*t + a(3)*t^2 + a(4)*t^3;
 
 end
+
 %% Numeric Model Functions
 function tauNum = calcTau(tau, angle, velocity, acceleration)
 %{ 
@@ -329,9 +357,9 @@ function J_sym = symbolicJacobian(T)
 % Note: All joints are revolute
 pe = T{7}(1:3, 4)
 
-zi = [[0;0;1] T{1}(1:3,3) T{2}(1:3,3) T{3}(1:3,3) T{4}(1:3,3) T{5}(1:3,3) T{6}(1:3,3)] %zi-1 vectors
+zi = [T{1}(1:3,3) T{2}(1:3,3) T{3}(1:3,3) T{4}(1:3,3) T{5}(1:3,3) T{6}(1:3,3) T{7}(1:3,3)] %zi-1 vectors
 
-pi = [[0;0;0] T{1}(1:3,4) T{2}(1:3,4) T{3}(1:3,4) T{4}(1:3,4) T{5}(1:3,4) T{6}(1:3,4)] %pi-1 vectors
+pi = [T{1}(1:3,4) T{2}(1:3,4) T{3}(1:3,4) T{4}(1:3,4) T{5}(1:3,4) T{6}(1:3,4) T{7}(1:3,3)] %pi-1 vectors
 
 for i = 1:7
     J_sym(1:3,i) = cross(zi(:,i), pe-pi(:,i));
