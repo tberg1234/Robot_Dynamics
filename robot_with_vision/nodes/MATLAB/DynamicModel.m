@@ -19,6 +19,7 @@
 rosinit('http://parallels-Parallels-Virtual-Platform:11311/');
 
 block_points = rossubscriber('/block_points', @blocksFound);
+joint_state_pub = rospublisher('/joint_states', 'sensor_msgs/JointState');
 
 %% Perform Desired Calculations
 
@@ -38,7 +39,7 @@ vel = cell(1,7);
 vel{1} = 0; vel{2} = 0; vel{3} = 0; vel{4} = 0; vel{5} = 0; vel{6} = 0; vel{7} = 0;
 for i = 1:length(jointspaceconfig)
     disp("publishing");
-    publish_joint(jointspaceconfig{1}, [0;0;0;0;0;0;0], tauconfig{1});
+    publish_joint(joint_state_pub, jointspaceconfig{1}, [0;0;0;0;0;0;0], tauconfig{1});
     pause(5);
 end
 end
