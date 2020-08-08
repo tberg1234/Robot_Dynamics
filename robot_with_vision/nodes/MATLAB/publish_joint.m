@@ -3,7 +3,7 @@ function publish_joint(joint_state_pub, joints_pos, joints_vel, joints_eff)
 % Publishes JointState message on joint_states topic for a single pose
 
     % move this outside of the function and pass this in for efficiency
-    % joint_state_pub = rospublisher('/joint_states', 'sensor_msgs/JointState');
+    joint_state_pub = rospublisher('/joint_states', 'sensor_msgs/JointState');
 
     name = {'panda_joint1', 'panda_joint2', 'panda_joint3', 'panda_joint4',...
         'panda_joint5', 'panda_joint6', 'panda_joint7'};
