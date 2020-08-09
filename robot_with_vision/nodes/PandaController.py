@@ -83,22 +83,25 @@ class PandaController:
         # send message to trajectory node with start, midpoint and end location in XYZ
         # prepare '/block_locations' message for trajectory: add midpoint and goal location based on color of block
         waypoints = []
+        blue = [.5, .5, .1]
+        red = [.5, .6, .1]
+        green = [.5, .7, .1]
         for i in range(len(msg.x_points)):
             # block location
             xi = msg.x_points[i]
             yi = msg.y_points[i]
             zi = msg.z_points[i]
             waypoints.append([xi, yi, zi])
-            # midpoint; just lifts 100 z units TODO: tweak this
-            zm = zi + 100
+            # midpoint; just lifts .2m in z axis
+            zm = zi + .2
             waypoints.append([xi, yi, zm])
-            # destination location TODO: see above, how to differentiate block types?
-            # currently assumes it's done by the vision node and that node sends:
-            # ['block1 location','destination','block2 location',... etc]
-            # xf = msg.poses[2*i+1].position.x
-            # yf = msg.poses[2*i+1].position.y
-            # zf = msg.poses[2*i+1].position.z
-            # waypoints.append([xf, yf, zf])
+            # sorted destination location
+            if msg.colors[i] == 'blue':
+                waypoints.append(blue)
+            if msg.colors[i] == 'red':
+                waypoints.append(red)
+            if msg.colos[i] == 'green':
+                waypoints.append(green)
 
         # prepare Path message
         path_msg = Path()
