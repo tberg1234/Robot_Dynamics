@@ -11,7 +11,7 @@
   <arg name="gui" default="true"/>
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
-  <arg name="load_gripper" default="true"/>
+  <arg name="load_gripper" default="false"/>
 
   <!--launch GAZEBO with own world configuration -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -28,7 +28,7 @@
   <rosparam file="$(find robot_with_vision)/config/panda_control.yaml" command="load"/>
 
 
-  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="joint_state_controller panda_arm_controller" />
+<!--  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="joint_state_controller panda_arm_controller" />-->
   <node if="$(arg load_gripper)" name="controller_spawner_hand" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="panda_hand_controller" />
 
 
@@ -45,7 +45,8 @@
          <param name="use_gui" value="True"/>
          </node>
 
+ <node pkg="robot_with_vision" type="PandaController.py" name="PandaController" />
  <node pkg="robot_with_vision" type="img_converter.py" name="img_converter" />
-  <node pkg="robot_with_vision" type="camera_vision.py" name="get_box_coordinates" />
+ <node pkg="robot_with_vision" type="camera_vision.py" name="get_box_coordinates" />
 
 </launch>

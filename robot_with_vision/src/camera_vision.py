@@ -16,6 +16,7 @@ import cv2
 from robot_with_vision.msg import centers, points_to_go_to
 from cv_bridge import CvBridge, CvBridgeError
 
+
 class camera_vision:
 
     def __init__(self):
@@ -26,6 +27,7 @@ class camera_vision:
 
         self.position_publisher = rospy.Publisher("/block_points", points_to_go_to, queue_size=10)
 
+        self.color_list = []
         self.depth_points_array = []
         self.x_centers = []
         self.y_centers = []
@@ -69,9 +71,9 @@ class camera_vision:
         #self.z_centers = []
         #rospy.logwarn(self.x_centers)
 
-        self.x_positions = list()
-        self.y_positions = list()
-        self.z_positions = list()
+        self.x_positions = []
+        self.y_positions = []
+        self.z_positions = []
 
         for i in range(len(self.x_centers)):
 
@@ -104,15 +106,16 @@ class camera_vision:
                 #rospy.logwarn(counter)
                 # a_pt = self.gen[x_pt][y_pt]
                 # rospy.logwarn(a_pt)
-        rospy.logwarn(self.x_positions)
-        rospy.logwarn(self.y_positions)
-        rospy.logwarn(self.z_positions)
+        # rospy.logwarn(self.x_positions)
+        # rospy.logwarn(self.y_positions)
+        # rospy.logwarn(self.z_positions)
+        rospy.logwarn(data.colors)
 
         points = points_to_go_to()
         points.x_points = self.x_positions
         points.y_points = self.y_positions
         points.z_points = self.z_positions
-        points.colors = self.color_list
+        points.colors = data.colors
 
         # In robots base frame the camera is at: 0.23728,0.001731,0.036
 

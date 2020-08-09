@@ -1,11 +1,13 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
+import sys
 
 import rospy
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, PoseArray
 from nav_msgs.msg import Path
 from sensor_msgs.msg import JointState
 from nav_msgs.srv import GetPlan
 from robot_with_vision.msg import centers, points_to_go_to
+
 
 # PandaController coordinator node: uses custom ROS message to receive a list of block locations and their respective
 # colors, then publishes a Path on the /block_points topic, which the Matlab portion uses to calculate required
@@ -27,28 +29,25 @@ class PandaController:
     def __init__(self):
         self.joint_update_delay = 10  # sleep time in ms between sending new joint position
 
-        rospy.init_node("panda_control")
-        self.joint_state_pub = rospy.Publisher("/joint_states", JointState)
-        self.waypoint_pub = rospy.Publisher("/panda_waypoints", GetPlan)
+        self.joint_state_pub = rospy.Publisher("/joint_states", JointState, queue_size=10)
+        self.waypoint_pub = rospy.Publisher("/panda_waypoints", PoseArray, queue_size=10)
         rospy.Subscriber('/block_points', points_to_go_to, self.request_trajectory)
 
-        rospy.sleep(10)
-        rospy.spin()
         rospy.loginfo("PandaController server node ready.")
 
-    @staticmethod
-    def request_trajectory(msg):
+    def request_trajectory(self, msg):
         # send message to trajectory node with start, midpoint and end location in XYZ
         # prepare '/panda_waypoints' message for trajectory: add midpoint and goal location based on color of block
+        # rospy.logwarn(msg)
         waypoints = []
         blue = [.5, .5, .1]
         red = [.5, .6, .1]
         green = [.5, .7, .1]
-        for i in range(len(msg.x_points)):
+        for i in range(len(msg.colors)):
             # block location
-            xi = msg.x_points[i]
-            yi = msg.y_points[i]
-            zi = msg.z_points[i]
+            xi = float(msg.x_points[i])
+            yi = float(msg.y_points[i])
+            zi = float(msg.z_points[i])
             waypoints.append([xi, yi, zi])
             # midpoint; just lifts .2m in z axis
             zm = zi + .2
@@ -62,15 +61,25 @@ class PandaController:
                 waypoints.append(green)
 
         # prepare Path message
-        path_msg = Path()
+        path_msg = PoseArray()
         for i in range(len(waypoints)):
             pt = PoseStamped()
             pt.pose.position.x = waypoints[i][0]
             pt.pose.position.y = waypoints[i][1]
             pt.pose.position.z = waypoints[i][2]
             path_msg.poses.append(pt)
+        self.waypoint_pub.publish(path_msg)
         return
 
 
-if __name__ == '__main__':
+def main(args):
     panda = PandaController()
+    rospy.init_node('PandaController', anonymous=True)
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print("Shutting down")
+
+
+if __name__ == '__main__':
+    main(sys.argv)
