@@ -109,7 +109,7 @@ class camera_vision:
         # rospy.logwarn(self.x_positions)
         # rospy.logwarn(self.y_positions)
         # rospy.logwarn(self.z_positions)
-        rospy.logwarn(data.colors)
+        # rospy.logwarn(data.colors)
 
         points = points_to_go_to()
         points.x_points = self.x_positions

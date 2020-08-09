@@ -2,7 +2,7 @@
 import sys
 
 import rospy
-from geometry_msgs.msg import PoseStamped, PoseArray
+from geometry_msgs.msg import Pose, PoseArray
 from nav_msgs.msg import Path
 from sensor_msgs.msg import JointState
 from nav_msgs.srv import GetPlan
@@ -39,19 +39,35 @@ class PandaController:
         # send message to trajectory node with start, midpoint and end location in XYZ
         # prepare '/panda_waypoints' message for trajectory: add midpoint and goal location based on color of block
         # rospy.logwarn(msg)
+        blue = Pose()
+        blue.position.x = .5
+        blue.position.y = .5
+        blue.position.z = .1
+        red = Pose()
+        red.position.x = .5
+        red.position.y = .6
+        red.position.z = .1
+        green = Pose()
+        green.position.x = .5
+        green.position.y = .7
+        green.position.z = .1
+        # prepare Path message
+        posearray_msg = PoseArray()
         waypoints = []
-        blue = [.5, .5, .1]
-        red = [.5, .6, .1]
-        green = [.5, .7, .1]
+
         for i in range(len(msg.colors)):
             # block location
-            xi = float(msg.x_points[i])
-            yi = float(msg.y_points[i])
-            zi = float(msg.z_points[i])
-            waypoints.append([xi, yi, zi])
+            pt_block = Pose()
+            pt_block.position.x = float(msg.x_points[i])
+            pt_block.position.y = float(msg.y_points[i])
+            pt_block.position.z = float(msg.z_points[i])
+            waypoints.append(pt_block)
             # midpoint; just lifts .2m in z axis
-            zm = zi + .2
-            waypoints.append([xi, yi, zm])
+            pt_mid = Pose()
+            pt_mid.position.x = float(msg.x_points[i])
+            pt_mid.position.y = float(msg.y_points[i])
+            pt_mid.position.z = float(msg.z_points[i]) + .2
+            waypoints.append(pt_mid)
             # sorted destination location
             if msg.colors[i] == 'blue':
                 waypoints.append(blue)
@@ -60,15 +76,9 @@ class PandaController:
             if msg.colors[i] == 'green':
                 waypoints.append(green)
 
-        # prepare Path message
-        path_msg = PoseArray()
-        for i in range(len(waypoints)):
-            pt = PoseStamped()
-            pt.pose.position.x = waypoints[i][0]
-            pt.pose.position.y = waypoints[i][1]
-            pt.pose.position.z = waypoints[i][2]
-            path_msg.poses.append(pt)
-        self.waypoint_pub.publish(path_msg)
+        posearray_msg.poses = waypoints
+        self.waypoint_pub.publish(posearray_msg)
+        rospy.sleep(3)
         return
 
 

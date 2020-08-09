@@ -28,7 +28,7 @@
   <rosparam file="$(find robot_with_vision)/config/panda_control.yaml" command="load"/>
 
 
-<!--  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="joint_state_controller panda_arm_controller" />-->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="joint_state_controller panda_arm_controller" />
   <node if="$(arg load_gripper)" name="controller_spawner_hand" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="panda_hand_controller" />
 
 
@@ -41,8 +41,8 @@
     <node name="rviz" pkg="rviz" type="rviz"
           args="-d $(find robot_with_vision)/config/panda.rviz" />
 
-     <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui">
-         <param name="use_gui" value="True"/>
+     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+         <param name="use_gui" value="false"/>
          </node>
 
  <node pkg="robot_with_vision" type="PandaController.py" name="PandaController" />
