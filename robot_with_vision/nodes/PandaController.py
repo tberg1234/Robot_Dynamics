@@ -58,7 +58,7 @@ class PandaController:
                 waypoints.append(blue)
             if msg.colors[i] == 'red':
                 waypoints.append(red)
-            if msg.colos[i] == 'green':
+            if msg.colors[i] == 'green':
                 waypoints.append(green)
 
         # prepare Path message
