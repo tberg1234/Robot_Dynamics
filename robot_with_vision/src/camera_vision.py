@@ -51,6 +51,7 @@ class camera_vision:
     def box_center_callback_img(self, data):
         self.x_centers = data.x_centers
         self.y_centers = data.y_centers
+        self.color_list = data.colors
         #
         # if self.depth_points_array is not None:
         #     for i in range(len(self.x_centers)):
@@ -111,6 +112,7 @@ class camera_vision:
         points.x_points = self.x_positions
         points.y_points = self.y_positions
         points.z_points = self.z_positions
+        points.colors = self.color_list
 
         # In robots base frame the camera is at: 0.23728,0.001731,0.036
 

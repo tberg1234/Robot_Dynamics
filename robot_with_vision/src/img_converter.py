@@ -102,6 +102,7 @@ class image_converter:
 
     x_list = list()
     y_list = list()
+    color_list = list()
 
     # RED
     cnts = cv2.findContours(thresh_r.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -114,6 +115,7 @@ class image_converter:
       cY = str(int(M["m01"] / M["m00"]))
       x_list.append(cX)
       y_list.append(cY)
+      color_list.append("red")
 
     # GREEN
     cnts = cv2.findContours(thresh_g.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -126,6 +128,7 @@ class image_converter:
       cY = str(int(M["m01"] / M["m00"]))
       x_list.append(cX)
       y_list.append(cY)
+      color_list.append("green")
 
 
     #BLUE
@@ -139,11 +142,13 @@ class image_converter:
       cY = str(int(M["m01"] / M["m00"]))
       x_list.append(cX)
       y_list.append(cY)
+      color_list.append("blue")
 
 
     centers_msg = centers()
     centers_msg.x_centers = x_list
     centers_msg.y_centers = y_list
+    centers_msg.colors = color_list
     self.centers_pub.publish(centers_msg)
 
 
