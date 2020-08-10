@@ -84,7 +84,6 @@ jointspaceconfig = cell(k, 1);
 for i = 1:k
     disp("Finding jointspaceconfig" + i);
     %jointspaceconfig{i} = num_IK(J, T, [0;0;0;0;0;0;0], taskspaceconfig{i});
-    %% FIX INVERSE KINEMATICS
     jointspaceconfig{i} = [0; 0; 0; 0; 0; 0; 0];
 end
 
