@@ -23,7 +23,7 @@
   	<arg name="headless" value="$(arg headless)"/>
   </include>
 
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model panda"/>
+<!--  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model panda"/>-->
 
   <rosparam file="$(find robot_with_vision)/config/panda_control.yaml" command="load"/>
 
@@ -43,6 +43,9 @@
 
      <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
          <param name="use_gui" value="true"/>
+         <param name="publish_default_velocities" value="false"/>
+         <param name="publish_default_velocities" value="false"/>
+         <param name="publish_default_efforts" value="false"/>
          </node>
 
  <node pkg="robot_with_vision" type="PandaController.py" name="PandaController" />
