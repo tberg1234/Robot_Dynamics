@@ -94,11 +94,11 @@ class camera_vision:
                         # rospy.logwarn(p[0])
                         # rospy.logwarn(p[1])
                         # rospy.logwarn(p[2])
-                        self.x_positions.append(str(p[0]))
-                        self.y_positions.append(str(p[1]))
+                        self.x_positions.append(str(p[0]+0.001731))
+                        self.y_positions.append(str(p[1]+0.036))
 
                         # MIGHT NEED TO ADD 0.05m to the Z!!!!
-                        self.z_positions.append(str(p[2]))
+                        self.z_positions.append(str(p[2]+0.237283))
 
                     counter = counter + 1
                     # rospy.logwarn(len(self.gen))
@@ -112,9 +112,9 @@ class camera_vision:
         # rospy.logwarn(data.colors)
 
         points = points_to_go_to()
-        points.x_points = self.x_positions
-        points.y_points = self.y_positions
-        points.z_points = self.z_positions
+        points.x_points = self.z_positions
+        points.y_points = self.x_positions
+        points.z_points = self.y_positions
         points.colors = data.colors
 
         # In robots base frame the camera is at: 0.23728,0.001731,0.036
